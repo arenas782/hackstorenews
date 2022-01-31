@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.hackernews.R
 import com.example.hackernews.databinding.FragmentMainBinding
 import com.example.hackernews.ui.base.BaseFragment
@@ -32,13 +33,29 @@ class MainFragment  : BaseFragment(){
         super.onViewCreated(view, savedInstanceState)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
+        binding.swipeRefreshLayout.isRefreshing = false
+
+        val refreshListener = SwipeRefreshLayout.OnRefreshListener {
+            Log.e("TAG","refreshing")
+            viewModel.setStateEvent(MainViewModel.MainStateEvent.ReloadPostsEvent)
+        }
+
+        binding.swipeRefreshLayout.setOnRefreshListener(refreshListener)
+        binding.swipeRefreshLayout.setColorSchemeColors(Commons.getColor(R.color.purple_700))
+
         subscribe()
         viewModel.setStateEvent(MainViewModel.MainStateEvent.GetPostsEvent)
 
+        viewModel.swipedToRefresh.observe(viewLifecycleOwner){
+            it.getContentIfNotHandled()?.let { isRefreshing ->
+                binding.swipeRefreshLayout.isRefreshing = isRefreshing
+                Log.e("TAG","refreshing changed $isRefreshing")
+            }
+        }
     }
 
     private fun setupClickObserver(){
-        viewModel.actionDetailsPost.observe(viewLifecycleOwner){
+        viewModel.actionDetailsPost.observe(this){
             it.getContentIfNotHandled()?.let { action ->
                 if (action){
                     viewModel.postDetails.value.let { post ->
@@ -61,12 +78,15 @@ class MainFragment  : BaseFragment(){
             when (it.status){
                 Status.SUCCESS -> {
                     Log.e(TAG,it.data.toString())
+
                     setupClickObserver()
                 }
                 Status.LOADING -> {
+
                     Log.e(TAG,"Loading data")
                 }
                 Status.ERROR -> {
+
                     Log.e(TAG,it.message.toString())
                     Commons.showSnackBar(title = Commons.getString(R.string.something_went_wrong),view = binding.recycler,type = Commons.SnackType.ERROR)
                 }

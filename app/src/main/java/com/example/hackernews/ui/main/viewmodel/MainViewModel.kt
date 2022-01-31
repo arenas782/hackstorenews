@@ -5,6 +5,7 @@ import android.view.View
 import androidx.lifecycle.*
 import com.example.hackernews.data.model.Post
 import com.example.hackernews.data.repository.MainRepository
+import com.example.hackernews.ui.main.MainActivity
 import com.example.hackernews.ui.main.adapter.PostAdapter
 import com.example.hackernews.utils.EventLiveData
 import com.example.hackernews.utils.Resource
@@ -26,6 +27,9 @@ class MainViewModel @Inject constructor(private val repository: MainRepository) 
     private var _actionDetailsPost = MutableLiveData<EventLiveData<Boolean>>()
     var actionDetailsPost: LiveData<EventLiveData<Boolean>> = _actionDetailsPost
 
+    private var _swipedToRefresh = MutableLiveData<EventLiveData<Boolean>>()
+    var swipedToRefresh: LiveData<EventLiveData<Boolean>> = _swipedToRefresh
+
 
     private val postList : MutableList <Post> = arrayListOf()
 
@@ -39,21 +43,41 @@ class MainViewModel @Inject constructor(private val repository: MainRepository) 
     val posts : LiveData<Resource<List<Post>?>>
         get () = _posts
 
-    fun setStateEvent(mainStateEvent: MainStateEvent){
+    private fun fetchPosts(showLoader: Boolean = true ){
+        showLoader(showLoader)
         viewModelScope.launch {
+            repository.getNewsByDate().onEach {
+                Log.e("TAG",it.data.toString())
+                _posts.value = it
+                it.data?.let { postList -> setupPostsList(postList) }
+                MainActivity.mutableMainProgress.value = View.GONE
+            }.launchIn(viewModelScope)
+        }
+    }
+    fun setStateEvent(mainStateEvent: MainStateEvent){
             when (mainStateEvent){
                 is MainStateEvent.GetPostsEvent -> {
-                    repository.getNewsByDate().onEach {
-                        Log.e("TAG",it.data.toString())
-                        _posts.value = it
-                        it.data?.let { postList -> setupPostsList(postList) }
-                    }.launchIn(viewModelScope)
+                    fetchPosts(true)
+                    Log.e("TAG","Normal event")
+                }
+                is MainStateEvent.ReloadPostsEvent -> {
+                    Log.e("TAG","Refresh event")
+                    fetchPosts(true)
                 }
                 is MainStateEvent.None -> {
                     // nothing to do
                 }
             }
+    }
+
+    private fun showLoader(showLoader: Boolean) {
+        if (showLoader) {
+            MainActivity.mutableMainProgress.value = View.VISIBLE
+        } else {
+            MainActivity.mutableMainProgress.value = View.GONE
         }
+        _swipedToRefresh.value = EventLiveData(false)
+
     }
 
     private fun setupPostsList(list : List<Post>){
@@ -66,6 +90,7 @@ class MainViewModel @Inject constructor(private val repository: MainRepository) 
 
     sealed class MainStateEvent{
         object GetPostsEvent : MainStateEvent()
+        object ReloadPostsEvent : MainStateEvent()
         object None : MainStateEvent()
     }
 
