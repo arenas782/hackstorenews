@@ -1,0 +1,58 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 3,
+    "identityHash": "f529c80fb139bbc7ab73c60b4be3bac9",
+    "entities": [
+      {
+        "tableName": "Post",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`objectID` TEXT NOT NULL, `story_url` TEXT, `author` TEXT, `created_at` INTEGER, `story_title` TEXT, PRIMARY KEY(`objectID`))",
+        "fields": [
+          {
+            "fieldPath": "objectID",
+            "columnName": "objectID",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "story_url",
+            "columnName": "story_url",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "author",
+            "columnName": "author",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "created_at",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "story_title",
+            "columnName": "story_title",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "objectID"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f529c80fb139bbc7ab73c60b4be3bac9')"
+    ]
+  }
+}
