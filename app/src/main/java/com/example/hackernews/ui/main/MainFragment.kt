@@ -44,14 +44,15 @@ class MainFragment  : BaseFragment(){
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(this)[MainViewModel::class.java]
 
+        subscribe()
+        viewModel.setStateEvent(MainViewModel.MainStateEvent.GetPostsEvent)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         setupSwipeLayout()
-        subscribe()
-        viewModel.setStateEvent(MainViewModel.MainStateEvent.GetPostsEvent)
+
     }
 
     private fun setupSwipeLayout(){
@@ -93,7 +94,7 @@ class MainFragment  : BaseFragment(){
     }
 
     private fun subscribe(){
-        viewModel.posts.observe(viewLifecycleOwner){
+        viewModel.posts.observe(this){
             when (it.status){
                 Status.SUCCESS -> {
                     MainActivity.mutableMainProgress.value = View.GONE
