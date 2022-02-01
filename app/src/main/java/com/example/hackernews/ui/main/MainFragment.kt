@@ -66,7 +66,7 @@ class MainFragment  : BaseFragment(){
         binding.swipeRefreshLayout.setOnRefreshListener(refreshListener)
         binding.swipeRefreshLayout.setColorSchemeColors(Commons.getColor(R.color.purple_700))
 
-        viewModel.swipedToRefresh.observe(viewLifecycleOwner){
+        viewModel.swipedToRefresh.observe(this){
             it.getContentIfNotHandled()?.let { isRefreshing ->
                 binding.swipeRefreshLayout.isRefreshing = isRefreshing
                 Log.e("TAG","refreshing changed $isRefreshing")
@@ -75,7 +75,7 @@ class MainFragment  : BaseFragment(){
     }
 
     private fun setupClickObserver(){
-        viewModel.actionDetailsPost.observe(viewLifecycleOwner){
+        viewModel.actionDetailsPost.observe(this){
             it.getContentIfNotHandled()?.let { action ->
                 if (action){
                     viewModel.postDetails.value.let { post ->
