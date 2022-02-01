@@ -20,9 +20,8 @@ class MainRepository @Inject constructor(private val postDao: PostDao, private v
 
             if (Commons.isOnline(BaseApp.appContext)){
                 val remotePosts = newsService.getNewsByDate()
-                if (remotePosts.hits.size >0)
-                    postDao.clearPosts()
                 remotePosts.hits.forEach{
+                    Log.e("POST",it.toString())
                     postDao.insertPost(it)
                 }
             }
@@ -35,7 +34,7 @@ class MainRepository @Inject constructor(private val postDao: PostDao, private v
 
     suspend fun deletePost(post : Post) {
         try {
-            postDao.deletePost(post)
+            postDao.deletePost(post.objectID)
         }catch (e : Exception){
             Log.e("TAG", "$e.localizedMessage")
         }

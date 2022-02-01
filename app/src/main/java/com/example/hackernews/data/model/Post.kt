@@ -27,4 +27,6 @@ data class Post(
 
     @field:Json(name = "title")
     val title: String? = null,
+
+    val dismissed: Int = 0,
 )

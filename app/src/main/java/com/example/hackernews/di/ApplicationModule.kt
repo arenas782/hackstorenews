@@ -68,7 +68,7 @@ class ApplicationModule {
     @Singleton
     @Provides
     fun providePostDao(appDatabase: AppDatabase) : PostDao{
-        return appDatabase.postDato()
+        return appDatabase.postDao()
     }
 
     @Singleton

@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -23,20 +25,36 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainFragment  : BaseFragment(){
-    private val binding by viewBinding(FragmentMainBinding::bind)
-    private val viewModel : MainViewModel by viewModels()
+    lateinit var binding : FragmentMainBinding
+    lateinit var viewModel : MainViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_main, container, false)
+
+        binding = FragmentMainBinding.inflate(inflater,container,false)
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = this
+        return binding.root
+
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        viewModel = ViewModelProviders.of(this)[MainViewModel::class.java]
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.lifecycleOwner = this
-        binding.viewModel = viewModel
+
+        setupSwipeLayout()
+        subscribe()
+        viewModel.setStateEvent(MainViewModel.MainStateEvent.GetPostsEvent)
+    }
+
+    private fun setupSwipeLayout(){
         binding.swipeRefreshLayout.isRefreshing = false
 
         val refreshListener = SwipeRefreshLayout.OnRefreshListener {
@@ -44,12 +62,8 @@ class MainFragment  : BaseFragment(){
             viewModel.setStateEvent(MainViewModel.MainStateEvent.ReloadPostsEvent)
         }
 
-
         binding.swipeRefreshLayout.setOnRefreshListener(refreshListener)
         binding.swipeRefreshLayout.setColorSchemeColors(Commons.getColor(R.color.purple_700))
-
-        subscribe()
-        viewModel.setStateEvent(MainViewModel.MainStateEvent.GetPostsEvent)
 
         viewModel.swipedToRefresh.observe(viewLifecycleOwner){
             it.getContentIfNotHandled()?.let { isRefreshing ->
