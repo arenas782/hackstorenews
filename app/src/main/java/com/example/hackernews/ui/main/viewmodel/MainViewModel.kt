@@ -43,6 +43,7 @@ class MainViewModel @Inject constructor(private val repository: MainRepository) 
     val posts : LiveData<Resource<List<Post>?>>
         get () = _posts
 
+
     private fun fetchPosts(){
         viewModelScope.launch {
             repository.getNewsByDate().onEach {
@@ -67,7 +68,6 @@ class MainViewModel @Inject constructor(private val repository: MainRepository) 
             repository.deletePost(post)
             postList.remove(post)
             postsAdapter.updateData(postList)
-
         }
     }
 
