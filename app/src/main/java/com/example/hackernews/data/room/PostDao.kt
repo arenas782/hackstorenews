@@ -1,9 +1,6 @@
 package com.example.hackernews.data.room
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 import com.example.hackernews.data.model.Post
 
 @Dao
@@ -13,4 +10,12 @@ interface PostDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPost(post : Post)
+
+    @Delete
+    suspend fun deletePost(post : Post)
+
+    @Query("DELETE FROM post")
+    suspend fun clearPosts()
+
+
 }

@@ -5,7 +5,7 @@
       <map>
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.13645833333333332" />
         <entry key="app/src/main/res/layout/fragment_main.xml" value="0.335" />
-        <entry key="app/src/main/res/layout/fragment_post_details.xml" value="0.17153996101364521" />
+        <entry key="app/src/main/res/layout/fragment_post_details.xml" value="0.5" />
         <entry key="app/src/main/res/layout/item_post.xml" value="0.16145833333333334" />
         <entry key="app/src/main/res/layout/view_progress_bar.xml" value="0.2671875" />
       </map>

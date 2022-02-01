@@ -43,26 +43,39 @@ class MainViewModel @Inject constructor(private val repository: MainRepository) 
     val posts : LiveData<Resource<List<Post>?>>
         get () = _posts
 
-    private fun fetchPosts(showLoader: Boolean = true ){
-        showLoader(showLoader)
+    private fun fetchPosts(){
         viewModelScope.launch {
             repository.getNewsByDate().onEach {
                 Log.e("TAG",it.data.toString())
                 _posts.value = it
                 it.data?.let { postList -> setupPostsList(postList) }
-                MainActivity.mutableMainProgress.value = View.GONE
+
             }.launchIn(viewModelScope)
+            _swipedToRefresh.value = EventLiveData(false)
+            MainActivity.mutableMainProgress.value = View.GONE
+        }
+
+    }
+    init {
+        fetchPosts()
+    }
+
+    fun deletePost(position : Int){
+        viewModelScope.launch {
+            Log.e("TAG","deleting post")
+            val post = postList[position]
+            repository.deletePost(post)
+            postList.remove(post)
+            postsAdapter.updateData(postList)
+
         }
     }
+
     fun setStateEvent(mainStateEvent: MainStateEvent){
             when (mainStateEvent){
-                is MainStateEvent.GetPostsEvent -> {
-                    fetchPosts(true)
+                is MainStateEvent.GetPostsEvent,MainStateEvent.ReloadPostsEvent -> {
+                    fetchPosts()
                     Log.e("TAG","Normal event")
-                }
-                is MainStateEvent.ReloadPostsEvent -> {
-                    Log.e("TAG","Refresh event")
-                    fetchPosts(true)
                 }
                 is MainStateEvent.None -> {
                     // nothing to do
@@ -70,15 +83,6 @@ class MainViewModel @Inject constructor(private val repository: MainRepository) 
             }
     }
 
-    private fun showLoader(showLoader: Boolean) {
-        if (showLoader) {
-            MainActivity.mutableMainProgress.value = View.VISIBLE
-        } else {
-            MainActivity.mutableMainProgress.value = View.GONE
-        }
-        _swipedToRefresh.value = EventLiveData(false)
-
-    }
 
     private fun setupPostsList(list : List<Post>){
         postList.clear()

@@ -2,6 +2,7 @@ package com.example.hackernews.ui.main
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.lifecycle.MutableLiveData
 import com.example.hackernews.R
@@ -16,9 +17,10 @@ class MainActivity : AppCompatActivity() {
 
         mutableMainProgress.observe(this) {
             progress_bar.visibility = it
+            Log.e("Progress bar ","$it")
         }
     }
     companion object{
-        val mutableMainProgress = MutableLiveData(View.GONE)
+        val mutableMainProgress = MutableLiveData(View.VISIBLE)
     }
 }

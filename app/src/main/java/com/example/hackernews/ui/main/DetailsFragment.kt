@@ -28,6 +28,7 @@ class DetailsFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.lifecycleOwner = this
+
         binding.webview.apply {
             webViewClient = object : WebViewClient() {
                 override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
@@ -39,6 +40,9 @@ class DetailsFragment : BaseFragment() {
             }
             settings.javaScriptEnabled = true
             loadUrl(args.postUrl.toString())
+        }
+        binding.backButton.setOnClickListener {
+            requireActivity().onBackPressed()
         }
     }
 }

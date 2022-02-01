@@ -7,10 +7,14 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.hackernews.R
 import com.example.hackernews.databinding.FragmentMainBinding
 import com.example.hackernews.ui.base.BaseFragment
+import com.example.hackernews.ui.main.adapter.PostAdapter
+import com.example.hackernews.ui.main.adapter.SwipeGesture
 import com.example.hackernews.ui.main.viewmodel.MainViewModel
 import com.example.hackernews.utils.Commons
 import com.example.hackernews.utils.Status
@@ -40,6 +44,7 @@ class MainFragment  : BaseFragment(){
             viewModel.setStateEvent(MainViewModel.MainStateEvent.ReloadPostsEvent)
         }
 
+
         binding.swipeRefreshLayout.setOnRefreshListener(refreshListener)
         binding.swipeRefreshLayout.setColorSchemeColors(Commons.getColor(R.color.purple_700))
 
@@ -55,7 +60,7 @@ class MainFragment  : BaseFragment(){
     }
 
     private fun setupClickObserver(){
-        viewModel.actionDetailsPost.observe(this){
+        viewModel.actionDetailsPost.observe(viewLifecycleOwner){
             it.getContentIfNotHandled()?.let { action ->
                 if (action){
                     viewModel.postDetails.value.let { post ->
@@ -77,16 +82,16 @@ class MainFragment  : BaseFragment(){
         viewModel.posts.observe(viewLifecycleOwner){
             when (it.status){
                 Status.SUCCESS -> {
+                    MainActivity.mutableMainProgress.value = View.GONE
                     Log.e(TAG,it.data.toString())
-
                     setupClickObserver()
                 }
                 Status.LOADING -> {
-
                     Log.e(TAG,"Loading data")
+                    MainActivity.mutableMainProgress.value = View.VISIBLE
                 }
                 Status.ERROR -> {
-
+                    MainActivity.mutableMainProgress.value = View.GONE
                     Log.e(TAG,it.message.toString())
                     Commons.showSnackBar(title = Commons.getString(R.string.something_went_wrong),view = binding.recycler,type = Commons.SnackType.ERROR)
                 }
